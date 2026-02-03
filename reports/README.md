@@ -2,7 +2,7 @@
 
 ### Naming convention
 
-`./reports/week-[n]` for example `./reports/report-1`
+`./reports/week-[n]` for example `./reports/report-1.md`
 
 ### Structure of the .md file
 
