@@ -6,7 +6,7 @@ import { sValidator } from '@hono/standard-validator'
 import { initDatabase } from './db.js'
 import auth from './auth.js'
 import { requireAuth, requireAdmin } from './middleware.js'
-import { hotelQueries } from './db.js'
+import { hotelQueries, roomQueries, bookingQueries, adminQueries } from './db.js'
 
 // Initialize database
 initDatabase()
@@ -50,12 +50,66 @@ app.get('/protected', requireAuth, (c) => {
   })
 })
 
-// Admin only route example
-app.get('/admin', requireAuth, requireAdmin, (c) => {
-  return c.json({ 
-    message: 'Admin dashboard data',
-    secret: 'Only admins can see this'
-  })
+// ── Admin API ───────────────────────────────────────────
+
+// Dashboard stats
+app.get('/admin/stats', requireAuth, requireAdmin, async (c) => {
+  const stats = await adminQueries.getStats()
+  return c.json(stats)
+})
+
+// All hotels (admin view)
+app.get('/admin/hotels', requireAuth, requireAdmin, async (c) => {
+  const hotels = await hotelQueries.findAll()
+  return c.json(hotels)
+})
+
+// Create hotel
+app.post('/admin/hotels', requireAuth, requireAdmin, async (c) => {
+  const { name, city, address, description } = await c.req.json()
+  if (!name || !city) return c.json({ error: 'Name and city are required' }, 400)
+  const user = c.get('user')!
+  await adminQueries.createHotel(name, city, address || '', description || '', user.id)
+  return c.json({ ok: true })
+})
+
+// Update hotel
+app.put('/admin/hotels/:id', requireAuth, requireAdmin, async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const { name, city, address, description } = await c.req.json()
+  if (!name || !city) return c.json({ error: 'Name and city are required' }, 400)
+  await adminQueries.updateHotel(id, name, city, address || '', description || '')
+  return c.json({ ok: true })
+})
+
+// Delete hotel (soft delete)
+app.delete('/admin/hotels/:id', requireAuth, requireAdmin, async (c) => {
+  const id = parseInt(c.req.param('id'))
+  await adminQueries.deleteHotel(id)
+  return c.json({ ok: true })
+})
+
+// All bookings
+app.get('/admin/bookings', requireAuth, requireAdmin, async (c) => {
+  const bookings = await adminQueries.getAllBookings()
+  return c.json(bookings)
+})
+
+// All users
+app.get('/admin/users', requireAuth, requireAdmin, async (c) => {
+  const users = await adminQueries.getAllUsers()
+  return c.json(users)
+})
+
+// Update user role
+app.put('/admin/users/:id/role', requireAuth, requireAdmin, async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const { role } = await c.req.json()
+  if (role !== 'user' && role !== 'admin') return c.json({ error: 'Role must be user or admin' }, 400)
+  const currentUser = c.get('user')!
+  if (currentUser.id === id) return c.json({ error: 'Cannot change your own role' }, 400)
+  await adminQueries.updateUserRole(id, role)
+  return c.json({ ok: true })
 })
 
 app.get('/users/:id', (c) => {
@@ -98,6 +152,55 @@ app.get('/hotels', async (c) => {
 
   const hotels = await hotelQueries.findAll({ city, minPrice, maxPrice, guests })
   return c.json(hotels)
+})
+
+// Hotel detail
+app.get('/hotels/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const hotel = await hotelQueries.findById(id)
+  if (!hotel) return c.json({ error: 'Hotel not found' }, 404)
+  return c.json(hotel)
+})
+
+// Rooms for a hotel
+app.get('/hotels/:id/rooms', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const rooms = await roomQueries.findByHotel(id)
+  return c.json(rooms)
+})
+
+// ── Bookings ────────────────────────────────────────────
+
+// Create booking
+app.post('/bookings', requireAuth, async (c) => {
+  const user = c.get('user')!
+  const { roomId, checkIn, checkOut, guests, note } = await c.req.json()
+  if (!roomId || !checkIn || !checkOut || !guests) {
+    return c.json({ error: 'roomId, checkIn, checkOut and guests are required' }, 400)
+  }
+  if (new Date(checkOut) <= new Date(checkIn)) {
+    return c.json({ error: 'Check-out must be after check-in' }, 400)
+  }
+  await bookingQueries.create(user.id, roomId, checkIn, checkOut, guests, note || '')
+  return c.json({ ok: true })
+})
+
+// My bookings
+app.get('/bookings/my', requireAuth, async (c) => {
+  const user = c.get('user')!
+  const bookings = await bookingQueries.findByUser(user.id)
+  return c.json(bookings)
+})
+
+// Cancel booking
+app.put('/bookings/:id/cancel', requireAuth, async (c) => {
+  const user = c.get('user')!
+  const id = parseInt(c.req.param('id'))
+  const booking = await bookingQueries.findById(id)
+  if (!booking) return c.json({ error: 'Booking not found' }, 404)
+  if (booking.user_id !== user.id) return c.json({ error: 'Not your booking' }, 403)
+  await bookingQueries.cancel(id, user.id)
+  return c.json({ ok: true })
 })
 
 serve(

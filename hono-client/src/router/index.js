@@ -5,6 +5,7 @@ import LoginPage from '../pages/LoginPage.vue'
 import RegisterPage from '../pages/RegisterPage.vue'
 import SearchPage from '../pages/SearchPage.vue'
 import MyBookingsPage from '../pages/MyBookingsPage.vue'
+import HotelDetailPage from '../pages/HotelDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
 
 const routes = [
@@ -30,6 +31,11 @@ const routes = [
     name: 'Search',
     component: SearchPage
     // Public page - no auth required
+  },
+  {
+    path: '/hotel/:id',
+    name: 'HotelDetail',
+    component: HotelDetailPage
   },
   {
     path: '/my-bookings',

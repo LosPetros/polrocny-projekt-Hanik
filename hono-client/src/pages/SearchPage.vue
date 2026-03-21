@@ -306,9 +306,9 @@
 
                 <!-- View Details -->
                 <div class="pt-3 border-t border-gray-100">
-                  <button class="w-full py-2 bg-gradient-primary text-white font-medium rounded-lg hover:opacity-90 transition-opacity text-sm">
+                  <router-link :to="'/hotel/' + hotel.id" class="block w-full py-2 bg-gradient-primary text-white font-medium rounded-lg hover:opacity-90 transition-opacity text-sm text-center">
                     View Details
-                  </button>
+                  </router-link>
                 </div>
               </div>
             </div>

@@ -174,6 +174,125 @@ export const hotelQueries = {
 }
 
 // --------------------------------------------------------
+// Booking queries
+// --------------------------------------------------------
+export const bookingQueries = {
+  async create(userId: number, roomId: number, checkIn: string, checkOut: string, guests: number, note: string) {
+    const [result] = await pool.execute(
+      'INSERT INTO bookings (user_id, room_id, check_in, check_out, guests, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      [userId, roomId, checkIn, checkOut, guests, 'confirmed', note || null]
+    )
+    return result
+  },
+
+  async findByUser(userId: number) {
+    const [rows] = await pool.execute(
+      `SELECT b.*, r.name AS room_name, r.price_per_night,
+              h.name AS hotel_name, h.city AS hotel_city,
+              DATEDIFF(b.check_out, b.check_in) AS nights
+       FROM bookings b
+       JOIN rooms r ON r.id = b.room_id
+       JOIN hotels h ON h.id = r.hotel_id
+       WHERE b.user_id = ?
+       ORDER BY b.created_at DESC`,
+      [userId]
+    )
+    return rows as any[]
+  },
+
+  async findById(id: number) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM bookings WHERE id = ?',
+      [id]
+    )
+    return (rows as any[])[0] ?? null
+  },
+
+  async cancel(id: number, userId: number) {
+    const [result] = await pool.execute(
+      "UPDATE bookings SET status = 'cancelled', cancelled_at = NOW() WHERE id = ? AND user_id = ? AND status != 'cancelled'",
+      [id, userId]
+    )
+    return result
+  },
+}
+
+// --------------------------------------------------------
+// Admin queries
+// --------------------------------------------------------
+export const adminQueries = {
+  async getStats() {
+    const [[hotels]] = await pool.execute('SELECT COUNT(*) AS count FROM hotels WHERE deleted_at IS NULL') as any
+    const [[users]] = await pool.execute('SELECT COUNT(*) AS count FROM users WHERE deleted_at IS NULL') as any
+    const [[bookings]] = await pool.execute('SELECT COUNT(*) AS count FROM bookings') as any
+    return {
+      hotels: hotels.count,
+      users: users.count,
+      bookings: bookings.count,
+    }
+  },
+
+  async getAllUsers() {
+    const [rows] = await pool.execute(
+      `SELECT u.id, u.email, u.role, u.created_at,
+              up.display_name AS name
+       FROM users u
+       LEFT JOIN user_profiles up ON up.user_id = u.id
+       WHERE u.deleted_at IS NULL
+       ORDER BY u.created_at DESC`
+    )
+    return rows as any[]
+  },
+
+  async getAllBookings() {
+    const [rows] = await pool.execute(
+      `SELECT b.*, u.email AS user_email, up.display_name AS user_name,
+              r.name AS room_name, r.price_per_night,
+              h.name AS hotel_name, h.city AS hotel_city
+       FROM bookings b
+       JOIN users u ON u.id = b.user_id
+       LEFT JOIN user_profiles up ON up.user_id = u.id
+       JOIN rooms r ON r.id = b.room_id
+       JOIN hotels h ON h.id = r.hotel_id
+       ORDER BY b.created_at DESC`
+    )
+    return rows as any[]
+  },
+
+  async createHotel(name: string, city: string, address: string, description: string, createdBy: number) {
+    const [result] = await pool.execute(
+      'INSERT INTO hotels (name, city, address, description, created_by, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+      [name, city, address, description, createdBy]
+    )
+    return result
+  },
+
+  async updateHotel(id: number, name: string, city: string, address: string, description: string) {
+    const [result] = await pool.execute(
+      'UPDATE hotels SET name = ?, city = ?, address = ?, description = ? WHERE id = ? AND deleted_at IS NULL',
+      [name, city, address, description, id]
+    )
+    return result
+  },
+
+  async deleteHotel(id: number) {
+    const [result] = await pool.execute(
+      'UPDATE hotels SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL',
+      [id]
+    )
+    return result
+  },
+
+  async updateUserRole(userId: number, role: string) {
+    const [result] = await pool.execute(
+      'UPDATE users SET role = ? WHERE id = ? AND deleted_at IS NULL',
+      [role, userId]
+    )
+    return result
+  },
+}
+
+// --------------------------------------------------------
 // Room queries
 // --------------------------------------------------------
 export const roomQueries = {
