@@ -87,7 +87,7 @@
           <div class="relative">
             <select
               v-model="sortBy"
-              class="appearance-none pl-3 pr-8 py-1.5 border border-gray-200 rounded-lg bg-white/80 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+              class="appearance-none pl-3 pr-8 py-1.5 border border-gray-200 rounded-lg bg-white/80 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-400 cursor-pointer"
             >
               <option value="name">Relevance</option>
               <option value="price_asc">Price: Low to High</option>
@@ -100,7 +100,7 @@
           <button
             v-if="cityInput || maxPrice < 800 || guests"
             @click="clearFilters"
-            class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-indigo-600 hover:bg-indigo-50 transition-colors"
+            class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-violet-600 hover:bg-violet-50 transition-colors"
           >
             Clear filters
           </button>
@@ -193,7 +193,7 @@
                 />
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-400">€0</span>
-                  <span class="font-semibold text-indigo-600">€{{ maxPrice }}</span>
+                  <span class="font-semibold text-violet-600">€{{ maxPrice }}</span>
                 </div>
               </div>
             </div>
@@ -208,7 +208,7 @@
               </button>
               <div v-show="openSections.stars" class="space-y-2">
                 <label v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" v-model="selectedStars" :value="star" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                  <input type="checkbox" v-model="selectedStars" :value="star" class="rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
                   <div class="flex items-center gap-1">
                     <svg v-for="n in star" :key="n" class="w-3.5 h-3.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
@@ -254,64 +254,7 @@
 
           <!-- Cards Grid -->
           <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div
-              v-for="hotel in sortedHotels"
-              :key="hotel.id"
-              class="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
-            >
-              <!-- Image -->
-              <div class="relative h-52 overflow-hidden">
-                <img
-                  :src="hotelImage(hotel.id)"
-                  :alt="hotel.name"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <span class="absolute top-3 left-3 px-2.5 py-1 bg-black/50 text-white text-xs rounded-full backdrop-blur-sm">
-                  {{ hotel.city }}
-                </span>
-              </div>
-
-              <!-- Info -->
-              <div class="p-5">
-                <!-- Name + Price -->
-                <div class="flex items-start justify-between mb-1">
-                  <h3 class="text-base font-bold text-gray-900 leading-tight">{{ hotel.name }}</h3>
-                  <div class="text-right shrink-0 ml-2">
-                    <span v-if="hotel.min_price" class="text-lg font-bold text-gray-900">€{{ hotel.min_price }}</span>
-                    <span v-else class="text-sm text-gray-400">—</span>
-                    <span v-if="hotel.min_price" class="text-xs text-gray-500"> / night</span>
-                  </div>
-                </div>
-
-                <!-- Stars + reviews -->
-                <div class="flex items-center gap-2 mb-3">
-                  <div class="flex items-center gap-0.5">
-                    <svg v-for="n in hotelStars(hotel.id)" :key="n" class="w-3.5 h-3.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                  </div>
-                  <span class="text-xs text-gray-500">{{ reviewCount(hotel.id) }} reviews</span>
-                </div>
-
-                <!-- Amenity chips -->
-                <div v-if="hotel.amenities" class="flex flex-wrap gap-1.5 mb-4">
-                  <span
-                    v-for="amenity in hotel.amenities.split(',').slice(0, 4)"
-                    :key="amenity"
-                    class="px-2.5 py-0.5 text-xs bg-indigo-50 text-indigo-700 rounded-full"
-                  >
-                    {{ amenity }}
-                  </span>
-                </div>
-
-                <!-- View Details -->
-                <div class="pt-3 border-t border-gray-100">
-                  <router-link :to="'/hotel/' + hotel.id" class="block w-full py-2 bg-gradient-primary text-white font-medium rounded-lg hover:opacity-90 transition-opacity text-sm text-center">
-                    View Details
-                  </router-link>
-                </div>
-              </div>
-            </div>
+            <HotelCard v-for="hotel in sortedHotels" :key="hotel.id" :hotel="hotel" />
           </div>
         </main>
       </div>
@@ -321,10 +264,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import AppShell from '../components/AppShell.vue'
 import AppNavbar from '../components/AppNavbar.vue'
+import HotelCard from '../components/HotelCard.vue'
 
 const API_URL = 'http://localhost:3000'
+const route = useRoute()
 
 // State
 const hotels     = ref([])
@@ -351,30 +297,10 @@ const openSections = ref({
   stars: true,
 })
 
-// Hotel placeholder images (cycled by id)
-const hotelImages = [
-  'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600',
-  'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600',
-  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
-  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600',
-  'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600',
-  'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600',
-]
-
-function hotelImage(id) {
-  return hotelImages[(id - 1) % hotelImages.length]
-}
-
 // Deterministic star rating per hotel (placeholder until stars added to DB)
 const starMap = [5, 5, 4, 4, 4, 3]
 function hotelStars(id) {
   return starMap[(id - 1) % starMap.length]
-}
-
-// Fake review count based on hotel id (placeholder until reviews are in DB)
-function reviewCount(id) {
-  const counts = [982, 1217, 756, 1482, 634, 891]
-  return counts[(id - 1) % counts.length].toLocaleString()
 }
 
 // Client-side sort + star filter
@@ -400,6 +326,9 @@ async function search() {
     if (cityInput.value.trim()) params.set('city', cityInput.value.trim())
     if (maxPrice.value < 800)   params.set('maxPrice', maxPrice.value)
     if (guests.value)           params.set('guests', guests.value)
+    // Send dates so the backend can filter out unavailable rooms
+    if (checkIn.value)          params.set('checkIn', checkIn.value)
+    if (checkOut.value)         params.set('checkOut', checkOut.value)
 
     const res = await fetch(`${API_URL}/hotels?${params}`)
     if (!res.ok) throw new Error('Failed to fetch hotels')
@@ -421,5 +350,11 @@ function clearFilters() {
   search()
 }
 
-onMounted(search)
+onMounted(() => {
+  // Pre-fill destination from the landing page search bar (?city=X)
+  if (route.query.city) {
+    cityInput.value = route.query.city
+  }
+  search()
+})
 </script>

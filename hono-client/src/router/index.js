@@ -7,6 +7,9 @@ import SearchPage from '../pages/SearchPage.vue'
 import MyBookingsPage from '../pages/MyBookingsPage.vue'
 import HotelDetailPage from '../pages/HotelDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import OwnerDashboardPage from '../pages/OwnerDashboardPage.vue'
+import OwnerHotelDetailPage from '../pages/OwnerHotelDetailPage.vue'
+import AdminHotelDetailPage from '../pages/AdminHotelDetailPage.vue'
 
 const routes = [
   {
@@ -48,6 +51,29 @@ const routes = [
     name: 'Admin',
     component: AdminPage,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/owner',
+    name: 'OwnerDashboard',
+    component: OwnerDashboardPage,
+    meta: { requiresAuth: true, requiresOwner: true }
+  },
+  {
+    path: '/owner/hotels/:id',
+    name: 'OwnerHotelDetail',
+    component: OwnerHotelDetailPage,
+    meta: { requiresAuth: true, requiresOwner: true }
+  },
+  {
+    path: '/admin/hotels/:id',
+    name: 'AdminHotelDetail',
+    component: AdminHotelDetailPage,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../pages/NotFoundPage.vue')
   }
 ]
 
@@ -68,6 +94,7 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = !!authStore.user
   const requiresAuth = to.meta.requiresAuth
   const requiresAdmin = to.meta.requiresAdmin
+  const requiresOwner = to.meta.requiresOwner
   const isGuestRoute = to.meta.guest
 
   // If route requires auth and user is not authenticated
@@ -78,6 +105,12 @@ router.beforeEach(async (to, from, next) => {
 
   // If route requires admin and user is not admin
   if (requiresAdmin && (!isAuthenticated || authStore.user.role !== 'admin')) {
+    next('/search')
+    return
+  }
+
+  // If route requires owner and user is not owner
+  if (requiresOwner && (!isAuthenticated || authStore.user.role !== 'owner')) {
     next('/search')
     return
   }

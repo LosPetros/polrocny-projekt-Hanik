@@ -55,3 +55,14 @@ export async function requireAdmin(c: Context, next: Next) {
 
   await next()
 }
+
+// Middleware to check if user is a hotel owner
+export async function requireOwner(c: Context, next: Next) {
+  const user = c.get('user') as AuthContext['user']
+
+  if (!user || user.role !== 'owner') {
+    return c.json({ error: 'Hotel owner access required' }, 403)
+  }
+
+  await next()
+}

@@ -35,10 +35,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Register new user
-  async function register(name, email, password) {
+  async function register(name, email, password, role = 'user') {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
@@ -46,7 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, role })
       })
       
       const data = await response.json()

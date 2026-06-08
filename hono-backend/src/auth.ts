@@ -5,6 +5,7 @@ import { sValidator } from '@hono/standard-validator'
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import { userQueries, sessionQueries } from './db.js'
+import { requireAuth } from './middleware.js'
 
 const auth = new Hono()
 
@@ -15,7 +16,8 @@ const registerSchema = z.object({
     (email) => email.includes('@') && email.includes('.'),
     'Email must contain @ and .'
   ),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['user', 'owner']).optional().default('user')
 })
 
 const loginSchema = z.object({
@@ -26,7 +28,7 @@ const loginSchema = z.object({
 // Register endpoint
 auth.post('/register', sValidator('json', registerSchema), async (c) => {
   try {
-    const { name, email, password } = c.req.valid('json')
+    const { name, email, password, role } = c.req.valid('json')
 
     // Check if user already exists
     const existingUser = await userQueries.findByEmail(email)
@@ -39,7 +41,7 @@ auth.post('/register', sValidator('json', registerSchema), async (c) => {
 
     // Create user
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ')
-    await userQueries.create(name, email, passwordHash, 'user', now)
+    await userQueries.create(name, email, passwordHash, role, now)
 
     return c.json({ ok: true, message: 'User registered successfully' })
   } catch (error) {
@@ -153,6 +155,19 @@ auth.get('/me', async (c) => {
   } catch (error) {
     console.error('Get user error:', error)
     return c.json({ user: null })
+  }
+})
+
+// Delete own account
+auth.delete('/me', requireAuth, async (c) => {
+  try {
+    const user = (c as any).get('user')
+    await userQueries.softDelete(user.id)
+    deleteCookie(c, 'session')
+    return c.json({ ok: true })
+  } catch (error) {
+    console.error('Delete account error:', error)
+    return c.json({ error: 'Failed to delete account' }, 500)
   }
 })
 

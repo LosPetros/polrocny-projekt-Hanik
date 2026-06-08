@@ -1,89 +1,135 @@
 <template>
   <AppShell>
     <AppNavbar />
-    
-    <div class="max-w-6xl mx-auto px-6">
-      <!-- Hero Section -->
-      <div class="py-20 text-center">
-        <h1 class="text-6xl font-bold text-gray-900 mb-6">
-          Find Your Perfect Stay
+
+    <!-- ── Hero ─────────────────────────────────────────── -->
+    <!-- Full-height section that uses the sky background.   -->
+    <section class="relative flex flex-col items-center justify-center min-h-[88vh] px-6 text-center pb-16 pt-4">
+
+      <div class="max-w-2xl mx-auto">
+        <!-- Headline -->
+        <h1
+          class="fade-up text-[clamp(2.8rem,7vw,5rem)] font-extrabold text-gray-900 leading-[1.06] tracking-tight mb-5"
+          style="text-wrap: balance"
+        >
+          Find your perfect stay
         </h1>
-        <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-          Discover and book the best hotels around the world. 
-          Simple, elegant, and built for modern travelers.
+
+        <!-- Subtitle -->
+        <p
+          class="fade-up fade-up-delay-1 text-lg text-gray-500 mb-10 max-w-md mx-auto leading-relaxed"
+          style="text-wrap: pretty"
+        >
+          Verified hotels across Slovakia. Transparent pricing, no surprise fees.
         </p>
 
-        <router-link 
-          to="/search"
-          class="inline-block px-8 py-4 bg-gradient-primary text-white text-lg font-semibold rounded-xl hover:opacity-90 transition-opacity"
+        <!-- Inline destination search -->
+        <div class="fade-up fade-up-delay-2 glass-card rounded-2xl p-2 flex items-center gap-2 max-w-sm mx-auto">
+          <div class="relative flex-1 min-w-0">
+            <svg
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <input
+              v-model="destination"
+              @keyup.enter="goSearch"
+              type="text"
+              placeholder="Bratislava, Poprad…"
+              class="w-full pl-9 pr-3 py-3 bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none text-sm font-medium"
+              aria-label="Destination city"
+            />
+          </div>
+          <button
+            @click="goSearch"
+            class="flex-shrink-0 px-5 py-3 bg-gradient-primary text-white text-sm font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all"
+          >
+            Search
+          </button>
+        </div>
+
+        <!-- Trust line -->
+        <p class="fade-up fade-up-delay-3 mt-5 text-xs text-gray-400 tracking-wide">
+          6 hotels · Bratislava, Poprad, Piešťany, Košice and more
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Value props ───────────────────────────────────── -->
+    <!-- Three text columns inside a single card.            -->
+    <!-- No icon bubbles — text hierarchy carries the weight. -->
+    <section class="max-w-4xl mx-auto px-6 pb-28">
+      <div class="glass-card rounded-3xl px-10 py-12 md:px-14 md:py-14">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-0">
+
+          <div class="md:pr-10">
+            <p class="text-2xl font-bold text-gray-900 mb-2 leading-tight">Verified listings</p>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Every hotel is reviewed by our team before appearing in search results.
+            </p>
+          </div>
+
+          <div class="md:px-10 md:border-x md:border-gray-100">
+            <p class="text-2xl font-bold text-gray-900 mb-2 leading-tight">Transparent pricing</p>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              No hidden fees. Room prices are set by owners and shown upfront.
+            </p>
+          </div>
+
+          <div class="md:pl-10">
+            <p class="text-2xl font-bold text-gray-900 mb-2 leading-tight">Book in minutes</p>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Pick a room, confirm, done. Cancel any booking at any time.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────── -->
+    <section class="max-w-3xl mx-auto px-6 pb-32 text-center">
+      <h2
+        class="text-3xl md:text-4xl font-bold text-gray-900 mb-3"
+        style="text-wrap: balance"
+      >
+        Ready to explore?
+      </h2>
+      <p class="text-gray-500 mb-8 text-base">Create a free account and start booking.</p>
+      <div class="flex gap-3 justify-center flex-wrap">
+        <router-link
+          to="/register"
+          class="px-7 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
         >
-          Start Browsing Hotels
+          Create account
+        </router-link>
+        <router-link
+          to="/search"
+          class="px-7 py-3 bg-white/80 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-white transition-colors"
+        >
+          Browse hotels
         </router-link>
       </div>
+    </section>
 
-      <!-- Features -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 py-16">
-        <div class="glass-card rounded-2xl p-8 text-center">
-          <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Secure Booking</h3>
-          <p class="text-gray-600">
-            Book with confidence using our secure payment system and verified hotels.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-8 text-center">
-          <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Best Prices</h3>
-          <p class="text-gray-600">
-            Get the best deals on hotels with our price match guarantee.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-8 text-center">
-          <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Easy Cancellation</h3>
-          <p class="text-gray-600">
-            Flexible cancellation policies for peace of mind when plans change.
-          </p>
-        </div>
-      </div>
-
-      <!-- CTA Section -->
-      <div class="glass-card rounded-3xl p-12 text-center my-16">
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to explore?</h2>
-        <p class="text-gray-600 mb-8">Join thousands of travelers finding their perfect stay.</p>
-        <div class="flex gap-4 justify-center">
-          <router-link 
-            to="/register"
-            class="px-6 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
-          >
-            Create Account
-          </router-link>
-          <router-link 
-            to="/search"
-            class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
-          >
-            Browse Hotels
-          </router-link>
-        </div>
-      </div>
-    </div>
   </AppShell>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import AppShell from '../components/AppShell.vue'
 import AppNavbar from '../components/AppNavbar.vue'
+
+const router = useRouter()
+const destination = ref('')
+
+function goSearch() {
+  const city = destination.value.trim()
+  router.push(city ? { path: '/search', query: { city } } : '/search')
+}
 </script>

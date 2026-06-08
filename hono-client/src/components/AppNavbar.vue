@@ -27,9 +27,18 @@
             My Bookings
           </router-link>
           
-          <router-link 
+          <router-link
+            v-if="authStore.user?.role === 'owner'"
+            to="/owner"
+            class="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+            active-class="text-gray-900"
+          >
+            My Hotels
+          </router-link>
+
+          <router-link
             v-if="authStore.user?.role === 'admin'"
-            to="/admin" 
+            to="/admin"
             class="text-gray-700 hover:text-gray-900 font-medium transition-colors"
             active-class="text-gray-900"
           >
@@ -56,16 +65,33 @@
             </router-link>
           </div>
 
-          <div v-else class="flex items-center gap-3">
-            <span class="text-sm text-gray-700 hidden lg:inline">
-              {{ authStore.user.name }}
-            </span>
-            <button 
-              @click="handleLogout"
-              class="px-5 py-2 rounded-full bg-white/70 border border-gray-200 text-gray-700 font-medium hover:bg-white transition-colors"
-            >
-              Logout
+          <div v-else class="relative flex items-center gap-3">
+            <!-- User menu toggle -->
+            <button @click="menuOpen = !menuOpen"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 border border-gray-200 text-gray-700 font-medium hover:bg-white transition-colors">
+              <UserAvatar :name="authStore.user.name" size="sm" />
+              <span class="text-sm hidden lg:inline">{{ authStore.user.name }}</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
+
+            <!-- Dropdown -->
+            <div v-if="menuOpen"
+              class="absolute right-0 top-12 w-48 bg-white border border-gray-200 rounded-2xl shadow-lg py-2 z-50">
+              <button @click="handleLogout"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                Logout
+              </button>
+              <hr class="my-1 border-gray-100" />
+              <button @click="handleDeleteAccount"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                Delete account
+              </button>
+            </div>
+
+            <!-- Click outside to close -->
+            <div v-if="menuOpen" class="fixed inset-0 z-40" @click="menuOpen = false"></div>
           </div>
         </div>
       </div>
@@ -74,14 +100,29 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import UserAvatar from './UserAvatar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const menuOpen = ref(false)
 
 async function handleLogout() {
+  menuOpen.value = false
   await authStore.logout()
   router.push('/login')
+}
+
+async function handleDeleteAccount() {
+  menuOpen.value = false
+  if (!confirm('Permanently delete your account? This cannot be undone.')) return
+  await fetch('http://localhost:3000/auth/me', {
+    method: 'DELETE',
+    credentials: 'include'
+  })
+  authStore.user = null
+  router.push('/')
 }
 </script>

@@ -91,6 +91,31 @@
                 <p class="mt-1 text-xs text-gray-500">At least 6 characters</p>
               </div>
 
+              <!-- Account Type Selector -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Account type</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    @click="role = 'user'"
+                    class="px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                    :class="role === 'user' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 bg-white/70 text-gray-600'"
+                  >
+                    <div class="font-semibold">Guest</div>
+                    <div class="text-xs opacity-75 mt-0.5">Browse and book hotels</div>
+                  </button>
+                  <button
+                    type="button"
+                    @click="role = 'owner'"
+                    class="px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                    :class="role === 'owner' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 bg-white/70 text-gray-600'"
+                  >
+                    <div class="font-semibold">Hotel owner</div>
+                    <div class="text-xs opacity-75 mt-0.5">List your property</div>
+                  </button>
+                </div>
+              </div>
+
               <!-- Confirm Password Input -->
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
@@ -158,6 +183,7 @@ const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const role = ref('user')
 const errorMessage = ref('')
 const successMessage = ref('')
 const loading = ref(false)
@@ -181,7 +207,7 @@ async function handleRegister() {
   loading.value = true
 
   try {
-    await authStore.register(name.value, email.value, password.value)
+    await authStore.register(name.value, email.value, password.value, role.value)
     successMessage.value = 'Account created successfully! Redirecting to login...'
     
     // Redirect to login after 2 seconds
